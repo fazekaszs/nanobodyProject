@@ -23,14 +23,40 @@ def get_global_statistics(table: pd.DataFrame):
 
     print(table_stats.to_string(), "\n")
 
-    t_ranks = table.rank(axis=0)
-    print(t_ranks)
+    ordered_table_col_names = [
+        "SWT:mCSM-PPI2", "SD1:mCSM-PPI2", "SD2:mCSM-PPI2",
+        "SWT:MutaBind2", "SD1:MutaBind2", "SD2:MutaBind2",
+        "SWT:SAAMBE-3D", "SD1:SAAMBE-3D", "SD2:SAAMBE-3D",
+    ]
+    ordered_table_row_names = ["H11H4", "Nb20", "ab8"]
+    muts_best = list()
+    muts_worst = list()
 
-    print("Pearson\'s correlation matrix:")
-    print(table.corr(method="pearson"), "\n")
+    for nanobody in ordered_table_row_names:
 
-    print("Spearman\'s correlation matrix:")
-    print(table.corr(method="spearman"), "\n")
+        muts_best_row = list()
+        muts_worst_row = list()
+        for col_name in ordered_table_col_names:  # S-RBD variants + predictors
+
+            srbd_variant, predictor = col_name.split(":")
+            relevant_values = table[predictor].filter(like=f"{nanobody}_{srbd_variant}:").sort_values()
+
+            current_bests = map(lambda x: x.split(":")[1], relevant_values.index[:3])
+            current_bests = ",".join(current_bests)
+            muts_best_row.append(current_bests)
+
+            current_worsts = map(lambda x: x.split(":")[1], relevant_values.index[-3:])
+            current_worsts = ",".join(current_worsts)
+            muts_worst_row.append(current_worsts)
+
+        muts_best.append(muts_best_row)
+        muts_worst.append(muts_worst_row)
+
+    muts_best = pd.DataFrame(data=muts_best, index=ordered_table_row_names, columns=ordered_table_col_names)
+    muts_worst = pd.DataFrame(data=muts_worst, index=ordered_table_row_names, columns=ordered_table_col_names)
+
+    print(muts_best.to_csv(sep="\t"))
+    print(muts_worst.to_csv(sep="\t"))
 
 
 def get_rbd_statistics(table: pd.DataFrame):
