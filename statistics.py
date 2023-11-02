@@ -3,12 +3,6 @@ import pandas as pd
 
 def get_global_statistics(table: pd.DataFrame):
 
-    t_med = table.median()
-    t_mad = (table - t_med).abs().median()
-    t_z = (table - t_med) / t_mad
-    t_z = t_z.mean(axis=1)
-    t_z = t_z.sort_values()
-
     table_stats = pd.concat({
         "Minimum": (t_min := table.min()),
         "Maximum": (t_max := table.max()),
@@ -57,6 +51,33 @@ def get_global_statistics(table: pd.DataFrame):
 
     print(muts_best.to_csv(sep="\t"))
     print(muts_worst.to_csv(sep="\t"))
+
+
+def get_z_statistics(table: pd.DataFrame):
+
+    t_center = table.median()  # table.mean() or table.median()
+    t_scale = (table - t_center).abs().median()  # table.std() or (table - t_center).abs().median()
+    t_z = (table - t_center) / t_scale
+    t_z = t_z.mean(axis=1)
+    t_z = t_z.sort_values()
+
+    nanobodies, variants = ["H11H4", "Nb20", "ab8"], ["SWT", "SD1", "SD2"]
+
+    rows = list()
+    values = list()
+
+    for var in variants:
+        for nb in nanobodies:
+
+            key = f"{nb}_{var}"
+            rows.append(key)
+
+            current_muts = t_z.filter(like=key)[:5]
+            current_muts = [mut.replace(f"{key}:", "") for mut in current_muts.index]
+            values.append(current_muts)
+
+    mut_table = pd.DataFrame(data=values, index=rows).transpose()
+    print(mut_table.to_csv(sep="\t"))
 
 
 def get_rbd_statistics(table: pd.DataFrame):
