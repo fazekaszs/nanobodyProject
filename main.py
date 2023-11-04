@@ -1,8 +1,7 @@
-import sys
-
 from data_readers import read_mutabind2, read_saambe_3d, read_mcsm_ppi2
 from plotters import plot_distributions, plot_correlation_scatter, plot_categoric_mutations
 from statistics import get_global_statistics, get_rbd_statistics, get_z_statistics
+from b_factor_coloring import modify_b_factor
 
 
 def main():
@@ -15,9 +14,13 @@ def main():
 
     # Statistics calculation
 
-    get_z_statistics(table)
+    z_scores = get_z_statistics(table)
     get_rbd_statistics(table)
     get_global_statistics(table)
+
+    # PDB b-factor modification based on z-scores
+
+    modify_b_factor(z_scores)
 
     # Plotting
 

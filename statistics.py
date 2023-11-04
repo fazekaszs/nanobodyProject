@@ -79,6 +79,8 @@ def get_z_statistics(table: pd.DataFrame):
     mut_table = pd.DataFrame(data=values, index=rows).transpose()
     print(mut_table.to_csv(sep="\t"))
 
+    return t_z
+
 
 def get_rbd_statistics(table: pd.DataFrame):
 
