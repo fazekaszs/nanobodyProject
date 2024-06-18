@@ -72,7 +72,9 @@ def get_z_statistics(table: pd.DataFrame):
             key = f"{nb}_{var}"
             rows.append(key)
 
-            current_muts = t_z.filter(like=key)[:5]
+            current_muts = t_z.filter(like=key)
+            print(f"Number of interface mutations for {key} is: {len(current_muts)}")
+            current_muts = current_muts[:5]
             current_muts = [mut.replace(f"{key}:", "") for mut in current_muts.index]
             values.append(current_muts)
 
